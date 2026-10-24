@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>iPhone UI</title>
+<style>
+/* ============ 基础 ============ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
+  background:radial-gradient(circle at 50% 20%,#1f2023,#0a0a0c 70%);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:24px;overflow:hidden;
+}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;}
+::-webkit-scrollbar{display:none;}
+
+/* ============ 手机外壳 ============ */
+.phone{
+  width:390px;height:844px;background:#000;border-radius:56px;padding:10px;
+  box-shadow:0 50px 120px rgba(0,0,0,.8),0 0 0 1px #2c2c2e,inset 0 0 0 1px #111;
+  position:relative;flex:0 0 auto;
+}
+.phone::before,.phone::after{
+  content:'';position:absolute;left:-2px;width:3px;border-radius:2px;background:#2c2c2e;
+}
+.phone::before{top:180px;height:60px;}
+.phone::after{top:260px;height:60px;}
+.screen{
+  position:relative;width:100%;height:100%;border-radius:46px;overflow:hidden;background:#000;
+}
+
+/* ============ 页面切换 ============ */
+.page{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;pointer-events:none;z-index:1;
+  transition:opacity .45s ease,transform .45s cubic-bezier(.4,0,.2,1);
+  transform:scale(1.03);
+}
+.page.active{opacity:1;visibility:visible;pointer-events:auto;z-index:5;transform:scale(1);}
+
+/* ============ 状态栏 ============ */
+.status-bar{
+  height:54px;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;font-size:15px;font-weight:600;letter-spacing:-.2px;color:#1c1c1e;
+  position:relative;z-index:20;
+}
+.status-bar.light{color:#fff;}
+.sb-left{display:flex;align-items:center;gap:5px;}
+.sb-carrier{font-size:15px;font-weight:600;}
+.sb-5g{font-size:11px;font-weight:700;letter-spacing:0;}
+.sb-right{display:flex;align-items:center;gap:6px;}
+.sb-right svg{display:block;}
+
+/* 灵动岛 */
+.island{
+  position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:118px;height:34px;background:#000;border-radius:20px;z-index:30;
+  box-shadow:0 0 0 1px rgba(0,0,0,.9);
+}
+
+/* ============ 首页指示条 ============ */
+.home-indicator{
+  position:absolute;bottom:9px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.32);z-index:40;
+}
+.home-indicator.light{background:rgba(255,255,255,.65);}
+
+/* ================================================================
+   锁屏
+================================================================ */
+.lock{
+  padding:0;
+  background:linear-gradient(165deg,#eef3f9 0%,#dfe7f1 38%,#cfd9e6 70%,#c3cfdf 100%);
+}
+.lock-bg{position:absolute;inset:0;overflow:hidden;z-index:0;}
+.lock-bg::before{
+  content:'';position:absolute;width:420px;height:420px;left:-140px;top:-80px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 68%);
+  filter:blur(8px);
+}
+.lock-bg::after{
+  content:'';position:absolute;width:460px;height:460px;right:-180px;bottom:-120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(180,205,235,.85),rgba(180,205,235,0) 70%);
+  filter:blur(10px);
+}
+.lock-blob{
+  position:absolute;width:300px;height:300px;left:60px;bottom:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,236,224,.8),rgba(255,236,224,0) 70%);
+  filter:blur(24px);
+}
+.lock > .status-bar{position:relative;z-index:10;}
+
+.lock-main{padding:0 22px;margin-top:2px;flex:1;position:relative;z-index:10;text-align:center;}
+.lock-date{
+  font-size:17px;font-weight:600;color:rgba(60,60,67,.62);letter-spacing:.2px;
+}
+.lock-time{
+  font-size:88px;font-weight:700;line-height:1.02;letter-spacing:-4px;color:#1c1c1e;
+  margin-top:-2px;font-variant-numeric:tabular-nums;
+}
+.lock-widgets{
+  display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;
+}
+.pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.52);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(180%);
+  border-radius:20px;padding:5px 13px;
+  font-size:13px;font-weight:600;color:#3a3a3c;
+  box-shadow:0 2px 10px rgba(70,90,120,.10);
+}
+.pill svg{display:block;}
+.pill .ring-txt{font-size:11px;font-weight:700;color:#3a3a3c;}
+
+/* 播客卡片 */
+.podcast{padding:0 16px;position:relative;z-index:10;}
+.podcast-card{
+  background:rgba(255,255,255,.60);
+  -webkit-backdrop-filter:blur(34px) saturate(180%);
+  backdrop-filter:blur(34px) saturate(180%);
+  border-radius:26px;padding:14px;display:flex;gap:13px;
+  box-shadow:0 10px 34px rgba(64,84,116,.14),inset 0 1px 0 rgba(255,255,255,.7);
+}
+.pc-cover{
+  width:74px;height:74px;border-radius:17px;flex:0 0 auto;
+  background:linear-gradient(140deg,#8fb8e8,#c9a8dd 55%,#f0b6c2);
+  display:flex;align-items:center;justify-content:center;font-size:34px;
+  box-shadow:0 4px 14px rgba(90,110,150,.25),inset 0 1px 0 rgba(255,255,255,.6);
+}
+.pc-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+.pc-title{font-size:15px;font-weight:600;color:#1c1c1e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pc-sub{font-size:12px;color:rgba(60,60,67,.55);margin-top:2px;}
+.pc-progress{height:4px;border-radius:2px;background:rgba(0,0,0,.10);margin-top:11px;overflow:hidden;}
+.pc-fill{height:100%;width:32%;border-radius:2px;background:linear-gradient(90deg,#7f8fa6,#4c5c72);}
+.pc-times{display:flex;justify-content:space-between;font-size:10px;color:rgba(60,60,67,.5);margin-top:5px;font-variant-numeric:tabular-nums;}
+
+.pc-controls{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:10px;padding:0 6px;
+}
+.pcb{
+  width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:17px;color:#1c1c1e;
+  background:rgba(255,255,255,.50);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  box-shadow:0 3px 12px rgba(70,90,120,.10);
+  transition:transform .15s,background .2s;
+}
+.pcb:active{transform:scale(.92);background:rgba(255,255,255,.8);}
+.pcb.big{width:52px;height:52px;font-size:16px;background:rgba(255,255,255,.72);}
+.pcb .num{font-size:9px;font-weight:700;margin-left:-1px;}
+
+/* 底部圆形按钮 */
+.lock-bottom{
+  display:flex;justify-content:space-between;padding:0 34px;margin-top:22px;
+  position:relative;z-index:10;
+}
+.round-btn{
+  width:52px;height:52px;border-radius:50%;
+  background:rgba(255,255,255,.52);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(180%);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 4px 16px rgba(70,90,120,.14),inset 0 1px 0 rgba(255,255,255,.8);
+  transition:transform .15s,background .2s;
+}
+.round-btn:active{transform:scale(.9);background:rgba(255,255,255,.85);}
+
+.swipe-hint{
+  text-align:center;font-size:11px;color:rgba(60,60,67,.42);margin-top:14px;
+  letter-spacing:.5px;animation:breathe 2.4s ease-in-out infinite;position:relative;z-index:10;
+}
+@keyframes breathe{0%,100%{opacity:.4;}50%{opacity:.9;}}
+
+/* ================================================================
+   密码锁屏
+================================================================ */
+.pass{
+  background:linear-gradient(165deg,#7d8ea3 0%,#546274 40%,#3a4553 72%,#252c36 100%);
+  padding:0;overflow:hidden;
+}
+.pass-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+.pass-bg::before{
+  content:'';position:absolute;width:400px;height:400px;left:-120px;top:-60px;border-radius:50%;
+  background:radial-gradient(circle,rgba(160,190,225,.55),rgba(160,190,225,0) 70%);filter:blur(20px);
+}
+.pass-bg::after{
+  content:'';position:absolute;width:420px;height:420px;right:-160px;bottom:-100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(120,150,190,.5),rgba(120,150,190,0) 70%);filter:blur(24px);
+}
+.pass .island{z-index:30;}
+.pass-time{
+  text-align:center;color:#fff;font-size:17px;font-weight:600;margin-top:14px;
+  letter-spacing:.4px;position:relative;z-index:10;opacity:.9;
+}
+.pass-hint{
+  text-align:center;color:rgba(255,255,255,.82);font-size:13.5px;font-weight:500;
+  margin-top:26px;position:relative;z-index:10;letter-spacing:.2px;
+}
+.pass-dots{
+  display:flex;justify-content:center;gap:20px;margin-top:22px;position:relative;z-index:10;
+}
+.dot{
+  width:12px;height:12px;border-radius:50%;
+  border:1.6px solid rgba(255,255,255,.85);background:transparent;
+  transition:background .18s,transform .18s;
+}
+.dot.filled{background:#fff;transform:scale(1.06);}
+.pass-dots.shake{animation:shake .42s;}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%,60%{transform:translateX(-9px);}
+  40%,80%{transform:translateX(9px);}
+}
+
+.keypad{
+  position:relative;z-index:10;margin-top:auto;padding:0 34px 6px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:15px 24px;justify-items:center;
+}
+.key{
+  width:76px;height:76px;border-radius:50%;
+  background:rgba(255,255,255,.20);
+  -webkit-backdrop-filter:blur(24px) saturate(170%);
+  backdrop-filter:blur(24px) saturate(170%);
+  border:.5px solid rgba(255,255,255,.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;box-shadow:0 3px 14px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .12s,background .15s;
+}
+.key:active{transform:scale(.93);background:rgba(255,255,255,.42);}
+.key .n{font-size:30px;font-weight:400;line-height:1;letter-spacing:.5px;}
+.key .a{font-size:9px;font-weight:700;letter-spacing:1.6px;margin-top:3px;color:rgba(255,255,255,.85);}
+.key.blank{background:none;border:none;box-shadow:none;pointer-events:none;}
+.key.del{background:rgba(255,255,255,.10);border-color:transparent;font-size:20px;}
+
+.pass-foot{
+  display:flex;justify-content:space-between;padding:0 34px;margin:14px 0 0;
+  position:relative;z-index:10;
+}
+.pass-foot button{color:#fff;font-size:15px;font-weight:500;opacity:.95;letter-spacing:.3px;}
+
+/* ================================================================
+   主屏幕
+================================================================ */
+.home{
+  background:linear-gradient(170deg,#f4f7fb 0%,#e7edf5 42%,#dde5ef 100%);
+  padding:0 18px;overflow:hidden;
+}
+.home-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+.home-bg::before{
+  content:'';position:absolute;width:380px;height:380px;left:-120px;top:60px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 70%);filter:blur(18px);
+}
+.home-bg::after{
+  content:'';position:absolute;width:360px;height:360px;right:-140px;bottom:60px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,220,245,.85),rgba(200,220,245,0) 70%);filter:blur(20px);
+}
+.home .status-bar{position:relative;z-index:10;padding:0 8px;}
+.home-grid{position:relative;z-index:10;flex:1;display:flex;flex-direction:column;gap:14px;margin-top:2px;overflow:hidden;}
+.hg-row{display:flex;gap:14px;}
+
+/* 天气小组件 */
+.weather-w{
+  flex:1;height:146px;border-radius:22px;padding:14px 16px;color:#fff;
+  background:linear-gradient(150deg,#5b7fa8 0%,#43607f 48%,#33465e 100%);
+  box-shadow:0 10px 26px rgba(40,60,90,.28),inset 0 1px 0 rgba(255,255,255,.18);
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+.weather-w::after{
+  content:'';position:absolute;width:170px;height:170px;right:-50px;top:-70px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,220,150,.42),rgba(255,220,150,0) 70%);filter:blur(6px);
+}
+.ww-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.ww-city{font-size:15px;font-weight:600;letter-spacing:.3px;}
+.ww-temp{font-size:40px;font-weight:300;line-height:1;letter-spacing:-2px;}
+.ww-desc{font-size:11px;opacity:.85;margin-top:2px;}
+.ww-days{display:flex;justify-content:space-between;margin-top:auto;position:relative;z-index:2;}
+.ww-day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;opacity:.92;}
+.ww-day .ico{font-size:14px;line-height:1;}
+.ww-day .d{font-weight:600;}
+.ww-note{
+  font-size:10.5px;margin-top:8px;padding-top:7px;border-top:.5px solid rgba(255,255,255,.22);
+  opacity:.85;position:relative;z-index:2;
+}
+
+/* 日历大组件 */
+.cal-w{
+  width:170px;height:178px;flex:0 0 auto;border-radius:22px;padding:12px;
+  background:rgba(255,255,255,.78);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);
+  backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:0 8px 24px rgba(64,84,116,.12),inset 0 1px 0 rgba(255,255,255,.9);
+  display:flex;flex-direction:column;
+}
+.cw-top{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:700;letter-spacing:.6px;color:#e0463f;text-transform:uppercase;}
+.cw-top .m{color:rgba(60,60,67,.5);font-weight:600;letter-spacing:.2px;}
+.cw-day{font-size:42px;font-weight:600;line-height:1;color:#1c1c1e;letter-spacing:-2px;margin-top:2px;}
+.cw-week{font-size:11px;font-weight:600;color:rgba(60,60,67,.55);margin-top:1px;margin-bottom:6px;}
+.cw-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;font-size:8px;text-align:center;color:rgba(60,60,67,.75);}
+.cw-grid .h{font-weight:700;color:rgba(60,60,67,.38);font-size:7px;}
+.cw-grid .d{padding:2px 0;border-radius:50%;}
+.cw-grid .d.today{background:#ff3b30;color:#fff;font-weight:700;}
+.cw-grid .d.empty{color:transparent;}
+
+/* 应用图标 */
+.hg-col{display:flex;flex-direction:column;gap:14px;flex:1;}
+.icon-row{display:flex;gap:14px;}
+.app{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
+  transition:transform .14s;cursor:pointer;
+}
+.app:active{transform:scale(.9);}
+.icon{
+  width:56px;height:56px;border-radius:15px;position:relative;overflow:hidden;
+  box-shadow:0 4px 12px rgba(50,70,100,.16),inset 0 1px 0 rgba(255,255,255,.4);
+}
+.app .lbl{font-size:10px;color:#2c2c2e;letter-spacing:.1px;}
+
+.icon.notes{background:linear-gradient(180deg,#fdfdf8,#f2f2ea);}
+.icon.notes::before{content:'';position:absolute;left:0;top:0;width:100%;height:15px;background:linear-gradient(180deg,#f7d64a,#f2c81f);}
+.icon.notes::after{
+  content:'';position:absolute;left:11px;right:11px;top:24px;height:2px;border-radius:1px;background:#cfcfc4;
+  box-shadow:0 8px 0 #cfcfc4,0 16px 0 #cfcfc4;
+}
+.icon.settings{
+  background:linear-gradient(160deg,#b6bcc4,#8a929c);
+  display:flex;align-items:center;justify-content:center;font-size:27px;color:#f2f4f7;
+  text-shadow:0 1px 2px rgba(0,0,0,.2);
+}
+.icon.calculator{background:linear-gradient(160deg,#3a3a3c,#1c1c1e);}
+.icon.calculator::before{
+  content:'';position:absolute;left:8px;right:8px;top:8px;height:13px;border-radius:3px;background:#f5f5f5;
+}
+.icon.calculator::after{
+  content:'';position:absolute;left:8px;right:8px;top:27px;height:21px;
+  background:
+    linear-gradient(#f5f5f5,#f5f5f5) 0 0/11px 8px no-repeat,
+    linear-gradient(#f5f5f5,#f5f5f5) 17px 0/11px 8px no-repeat,
+    linear-gradient(#f5f5f5,#f5f5f5) 34px 0/11px 8px no-repeat,
+    linear-gradient(#f5f5f5,#f5f5f5) 0 13px/11px 8px no-repeat,
+    linear-gradient(#f5f5f5,#f5f5f5) 17px 13px/11px 8px no-repeat,
+    linear-gradient(#f5f5f5,#f5f5f5) 34px 13px/11px 8px no-repeat;
+  border-radius:2px;
+}
+.icon.photos{
+  background:conic-gradient(from 20deg,#f7d04a,#f79a3c,#ef4f5e,#c156d6,#5b8def,#4bc8e0,#8ddc6a,#f7d04a);
+}
+.icon.photos::after{
+  content:'';position:absolute;left:50%;top:50%;width:19px;height:19px;margin:-9.5px 0 0 -9.5px;
+  border-radius:50%;background:rgba(255,255,255,.95);
+}
+.icon.appstore{
+  background:linear-gradient(180deg,#3ba5f7,#1570d8);
+  display:flex;align-items:center;justify-content:center;
+}
+.icon.appstore::before{
+  content:'A';color:#fff;font-size:26px;font-weight:600;font-family:"SF Pro Display",-apple-system,sans-serif;
+}
+.icon.safari{
+  background:linear-gradient(180deg,#59b6f7,#1a72d8);
+}
+.icon.safari::before{
+  content:'';position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;
+  border-radius:50%;background:#fff;
+}
+.icon.safari::after{
+  content:'';position:absolute;left:50%;top:50%;width:4px;height:22px;margin:-11px 0 0 -2px;
+  background:linear-gradient(180deg,#ef4f5e 50%,#c9ced6 50%);
+  border-radius:2px;transform:rotate(45deg);
+}
+.icon.clock{background:linear-gradient(180deg,#ffffff,#e9e9ee);}
+.icon.clock::before{
+  content:'';position:absolute;left:50%;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;
+  border-radius:50%;border:2px solid #1c1c1e;
+}
+.icon.clock::after{
+  content:'';position:absolute;left:50%;top:50%;width:2px;height:13px;margin:-13px 0 0 -1px;
+  background:#1c1c1e;transform-origin:bottom center;transform:rotate(38deg);border-radius:1px;
+}
+.icon.weather{
+  background:linear-gradient(180deg,#5ab4f7,#1f7fd8);
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+}
+.icon.weather::before{content:'☀';position:absolute;left:12px;top:7px;font-size:19px;color:#ffd83d;filter:drop-shadow(0 1px 2px rgba(0,0,0,.15));}
+.icon.weather::after{content:'☁';position:absolute;right:9px;bottom:6px;font-size:22px;color:#fff;}
+
+/* 迷你日历 + 搜索 */
+.minical{
+  width:170px;height:148px;flex:0 0 auto;border-radius:22px;padding:11px 12px;
+  background:rgba(255,255,255,.78);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);
+  backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:0 8px 24px rgba(64,84,116,.12),inset 0 1px 0 rgba(255,255,255,.9);
+}
+.mc-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.mc-head .t{font-size:12px;font-weight:700;color:#ff3b30;letter-spacing:.2px;}
+.mc-head .y{font-size:10px;color:rgba(60,60,67,.45);font-weight:600;}
+.mc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;text-align:center;font-size:8.5px;color:rgba(60,60,67,.8);}
+.mc-grid .h{font-weight:700;font-size:7px;color:rgba(60,60,67,.35);padding-bottom:2px;}
+.mc-grid .d{padding:2.2px 0;border-radius:50%;}
+.mc-grid .d.today{background:#ff3b30;color:#fff;font-weight:700;}
+
+.search{
+  flex:1;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;gap:6px;
+  background:rgba(255,255,255,.55);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(180%);
+  font-size:14px;font-weight:500;color:rgba(60,60,67,.55);
+  box-shadow:0 4px 16px rgba(64,84,116,.10),inset 0 1px 0 rgba(255,255,255,.8);
+  align-self:center;
+}
+
+/* Dock */
+.dock{
+  margin-top:auto;margin-bottom:14px;height:86px;border-radius:30px;
+  background:rgba(255,255,255,.52);
+  -webkit-backdrop-filter:blur(34px) saturate(180%);
+  backdrop-filter:blur(34px) saturate(180%);
+  box-shadow:0 8px 28px rgba(64,84,116,.14),inset 0 1px 0 rgba(255,255,255,.9);
+  display:flex;align-items:center;justify-content:space-around;padding:0 10px;
+  position:relative;z-index:10;
+}
+.dock .app{flex:0 0 auto;}
+.dock .icon{width:56px;height:56px;border-radius:16px;}
+.icon.sms{
+  background:linear-gradient(180deg,#6ee87a,#25c248);
+  display:flex;align-items:center;justify-content:center;
+}
+.icon.sms::before{
+  content:'';width:32px;height:25px;border-radius:12px;background:#fff;position:relative;
+}
+.icon.sms::after{
+  content:'';position:absolute;left:16px;bottom:11px;width:0;height:0;
+  border-left:7px solid #fff;border-top:7px solid transparent;
+}
+.icon.wechat{
+  background:linear-gradient(180deg,#4ade68,#1fb141);
+  display:flex;align-items:center;justify-content:center;
+}
+.icon.wechat::before{
+  content:'';width:27px;height:22px;border-radius:50%;background:#fff;
+  position:absolute;left:9px;top:12px;
+}
+.icon.wechat::after{
+  content:'';width:19px;height:16px;border-radius:50%;background:#fff;
+  position:absolute;right:9px;bottom:12px;box-shadow:0 0 0 2.5px #29c451;
+}
+.icon.douban{
+  background:linear-gradient(180deg,#43a854,#2c8a3c);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:23px;font-weight:700;font-family:"PingFang SC",sans-serif;
+}
+.icon.douban::before{content:'豆';}
+.icon.meituan{
+  background:linear-gradient(180deg,#ffd94a,#ffc107);
+  display:flex;align-items:center;justify-content:center;
+  color:#1c1c1e;font-size:19px;font-weight:800;letter-spacing:-.5px;
+  font-family:"PingFang SC",sans-serif;
+}
+.icon.meituan::before{content:'美团';}
+
+/* ================================================================
+   iMessage
+================================================================ */
+.app-msg{padding:0;background:#000;}
+.nebula-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+.nebula-bg svg{width:100%;height:100%;display:block;}
+.msg-inner{position:relative;z-index:10;display:flex;flex-direction:column;height:100%;}
+
+.msg-nav{
+  height:48px;flex:0 0 auto;display:flex;align-items:center;padding:0 12px;gap:10px;
+  background:rgba(30,32,38,.28);
+  -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+}
+.msg-back{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:22px;line-height:1;
+  background:rgba(255,255,255,.16);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+}
+.msg-who{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.msg-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(180deg,#e2e4e8,#b9bec7);
+  position:relative;overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.msg-avatar::before{
+  content:'';position:absolute;left:50%;top:7px;transform:translateX(-50%);
+  width:11px;height:11px;border-radius:50%;background:#2b2f36;
+}
+.msg-avatar::after{
+  content:'';position:absolute;left:50%;top:20px;transform:translateX(-50%);
+  width:23px;height:18px;border-radius:12px 12px 0 0;background:#2b2f36;
+}
+.msg-name{font-size:10px;color:rgba(255,255,255,.9);font-weight:600;letter-spacing:.5px;}
+.msg-video{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:rgba(255,255,255,.16);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+}
+
+.msg-list{
+  flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:7px;
+}
+.msg-date{
+  text-align:center;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600;
+  margin:10px 0 3px;letter-spacing:.3px;
+}
+.bubble{
+  max-width:74%;padding:8px 13px;border-radius:18px;font-size:14px;line-height:1.38;
+  color:#fff;word-break:break-word;position:relative;
+}
+.bubble.them{
+  align-self:flex-start;
+  background:rgba(58,62,70,.82);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border-bottom-left-radius:6px;
+  box-shadow:0 2px 10px rgba(0,0,0,.16);
+}
+.bubble.me{
+  align-self:flex-end;
+  background:linear-gradient(180deg,#2b9bff,#0a84ff);
+  border-bottom-right-radius:6px;
+  box-shadow:0 2px 12px rgba(10,132,255,.34);
+}
+
+.msg-input{
+  flex:0 0 auto;display:flex;align-items:center;gap:9px;padding:8px 12px 26px;
+  background:rgba(30,32,38,.22);
+  -webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px);
+}
+.mi-btn{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:17px;background:rgba(255,255,255,.16);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  flex:0 0 auto;
+}
+.mi-field{
+  flex:1;height:34px;border-radius:17px;padding:0 14px;display:flex;align-items:center;
+  font-size:14px;color:rgba(255,255,255,.6);
+  background:rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border:.5px solid rgba(255,255,255,.18);
+}
+.caret{
+  display:inline-block;width:1.6px;height:15px;background:#fff;margin-left:1px;
+  animation:blink 1.05s steps(1) infinite;
+}
+@keyframes blink{0%,50%{opacity:1;}50.1%,100%{opacity:0;}}
+
+/* ================================================================
+   微信
+================================================================ */
+.app-wechat{background:#f7f7f7;}
+.wx-head{background:#f7f7f7;flex:0 0 auto;border-bottom:.5px solid rgba(0,0,0,.07);}
+.wx-nav{height:46px;display:flex;align-items:center;padding:0 12px;gap:8px;position:relative;}
+.wx-back{font-size:23px;color:#1c1c1e;line-height:1;width:28px;}
+.wx-title{
+  position:absolute;left:0;right:0;text-align:center;pointer-events:none;
+  font-size:16px;font-weight:600;color:#1c1c1e;display:flex;flex-direction:column;align-items:center;
+}
+.wx-title .av{
+  width:26px;height:26px;border-radius:6px;background:linear-gradient(160deg,#ffd9a8,#f7a86b);
+  display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:1px;
+}
+.wx-title .tx{font-size:11px;font-weight:600;color:#1c1c1e;}
+.wx-more{margin-left:auto;font-size:19px;color:#1c1c1e;letter-spacing:1px;}
+
+.wx-list{flex:1;overflow-y:auto;padding:12px 12px 10px;display:flex;flex-direction:column;}
+.wx-time{text-align:center;font-size:11px;color:#b2b2b2;margin:12px 0 8px;}
+.wx-row{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start;}
+.wx-row.me{flex-direction:row-reverse;}
+.wx-av{
+  width:36px;height:36px;border-radius:6px;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);
+}
+.wx-av.rabbit{background:linear-gradient(160deg,#ffe3ef,#ffc2d8);}
+.wx-av.capy{background:linear-gradient(160deg,#f5e0c0,#dcbb90);}
+.wx-bubble{
+  max-width:66%;padding:9px 12px;border-radius:6px;font-size:14.5px;line-height:1.42;
+  color:#1c1c1e;background:#fff;position:relative;word-break:break-word;
+  box-shadow:0 1px 2px rgba(0,0,0,.05);
+}
+.wx-row.me .wx-bubble{background:#95ec69;}
+.wx-bubble::before{
+  content:'';position:absolute;top:12px;width:0;height:0;
+  border-top:5px solid transparent;border-bottom:5px solid transparent;
+}
+.wx-row.them .wx-bubble::before{left:-5px;border-right:6px solid #fff;}
+.wx-row.me .wx-bubble::before{right:-5px;border-left:6px solid #95ec69;}
+
+.wx-input{
+  flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 10px 26px;
+  background:#f7f7f7;border-top:.5px solid rgba(0,0,0,.07);
+}
+.wx-ib{
+  width:32px;height:32px;border-radius:50%;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  border:1.2px solid #8b8b8b;color:#595959;font-size:16px;
+}
+.wx-field{
+  flex:1;height:36px;border-radius:6px;background:#fff;display:flex;align-items:center;
+  padding:0 12px;font-size:14px;color:#c4c4c4;
+}
+.wx-emo{font-size:19px;flex:0 0 auto;}
+.wx-plus{
+  width:30px;height:30px;border-radius:50%;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  border:1.2px solid #8b8b8b;color:#595959;font-size:18px;line-height:1;
+}
+
+/* ================================================================
+   豆瓣
+================================================================ */
+.app-douban{background:#fff;}
+.db-head{background:#4080dd;flex:0 0 auto;color:#fff;}
+.db-nav{height:46px;display:flex;align-items:center;padding:0 12px;gap:10px;}
+.db-back{font-size:23px;line-height:1;color:#fff;width:26px;}
+.db-nav-title{flex:1;display:flex;flex-direction:column;min-width:0;}
+.db-nav-title .g{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.db-nav-title .s{font-size:10.5px;opacity:.85;margin-top:1px;}
+.db-nav-more{font-size:18px;letter-spacing:1px;color:#fff;}
+
+.db-scroll{flex:1;overflow-y:auto;padding-bottom:8px;}
+
+.db-post{padding:14px 14px 10px;}
+.db-user{display:flex;align-items:center;gap:10px;}
+.db-uav{
+  width:40px;height:40px;border-radius:50%;flex:0 0 auto;
+  background:linear-gradient(150deg,#a8d8ff,#7fb6f0);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.db-uinfo{display:flex;flex-direction:column;gap:2px;}
+.db-uname{font-size:14px;font-weight:600;color:#1c1c1e;}
+.db-umeta{font-size:11px;color:#a0a0a0;}
+.db-content{font-size:15.5px;line-height:1.55;color:#1c1c1e;margin-top:12px;font-weight:500;}
+.db-content .tag{color:#32b950;}
+
+.db-actions{
+  display:flex;align-items:center;justify-content:space-around;
+  padding:10px 14px;border-top:.5px solid #eee;border-bottom:.5px solid #eee;
+  font-size:12.5px;color:#8a8a8a;
+}
+.db-actions span{display:flex;align-items:center;gap:4px;}
+
+.db-chead{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px;}
+.db-chead .t{font-size:13.5px;font-weight:600;color:#1c1c1e;}
+.db-chead .lz{
+  font-size:11px;color:#32b950;border:.5px solid #32b950;border-radius:10px;padding:1.5px 9px;
+  background:#f2fbf5;
+}
+
+.db-comments{padding:0 14px;}
+.db-c{padding:12px 0;border-bottom:.5px solid #f2f2f2;}
+.db-c:last-child{border-bottom:none;}
+.db-c-head{display:flex;align-items:center;gap:8px;}
+.db-c-av{
+  width:30px;height:30px;border-radius:50%;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.db-c-info{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;}
+.db-c-name{font-size:12.5px;font-weight:600;color:#3a5a8c;display:flex;align-items:center;gap:4px;}
+.db-c-name .dot{width:5px;height:5px;border-radius:50%;background:#f5a623;display:inline-block;}
+.db-c-meta{font-size:10.5px;color:#b0b0b0;}
+.db-c-body{font-size:13.5px;line-height:1.5;color:#2c2c2e;margin:7px 0 0 38px;}
+.db-quote{
+  margin:7px 0 0 38px;padding:7px 10px;border-radius:6px;background:#f5f5f5;
+  font-size:12.5px;color:#8a8a8a;line-height:1.45;
+}
+.db-c-foot{display:flex;justify-content:flex-end;margin:6px 0 0 38px;font-size:11.5px;color:#b0b0b0;}
+.db-c-foot span{display:flex;align-items:center;gap:3px;}
+
+.db-bar{
+  flex:0 0 auto;display:flex;align-items:center;gap:10px;
+  padding:8px 12px 26px;background:#fff;border-top:.5px solid #ececec;
+}
+.db-field{
+  flex:1;height:34px;border-radius:17px;background:#f2f2f2;display:flex;align-items:center;
+  padding:0 14px;font-size:13.5px;color:#b0b0b0;
+}
+.db-icons{display:flex;gap:14px;font-size:17px;color:#9a9a9a;}
+
+/* ================================================================
+   美团（订单列表）
+================================================================ */
+.app-meituan{background:#f5f5f5;}
+
+.mt-head{background:#fff;flex:0 0 auto;position:relative;z-index:10;}
+.mt-head .status-bar{padding:0 16px;}
+
+.mt-mini-apps{font-size:10px;letter-spacing:-1px;opacity:.85;}
+.mt-hd{
+  font-size:8.5px;font-weight:800;color:#fff;background:#3a3a3c;border-radius:3px;
+  padding:1px 3px;letter-spacing:0;
+}
+
+.mt-search{display:flex;align-items:center;gap:9px;padding:4px 12px 9px;background:#fff;}
+.mt-back{font-size:23px;line-height:1;color:#1c1c1e;width:22px;flex:0 0 auto;}
+.mt-field{
+  flex:1;height:34px;border-radius:17px;background:#f4f4f4;display:flex;align-items:center;
+  padding:0 13px;font-size:13px;color:#adadad;gap:6px;
+}
+.mt-tools{display:flex;gap:12px;font-size:15px;color:#5a5a5a;flex:0 0 auto;}
+
+.mt-tabs{
+  display:flex;gap:22px;padding:2px 14px 0;overflow-x:auto;background:#fff;
+  border-bottom:.5px solid #f0f0f0;
+}
+.mt-tab{
+  font-size:13.5px;color:#8a8a8a;padding-bottom:8px;position:relative;
+  white-space:nowrap;flex:0 0 auto;transition:color .2s;
+}
+.mt-tab.on{color:#1c1c1e;font-weight:600;}
+.mt-tab.on::after{
+  content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:0;
+  width:22px;height:3px;border-radius:2px;background:#ffc107;
+}
+
+.mt-scroll{
+  flex:1;overflow-y:auto;padding:11px 12px 30px;
+  display:flex;flex-direction:column;gap:10px;
+}
+
+.ocard{
+  background:#fff;border-radius:14px;padding:12px 13px;
+  box-shadow:0 2px 8px rgba(0,0,0,.045);
+}
+.oc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
+.oc-shop{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:#1c1c1e;}
+.oc-shop-ico{
+  width:17px;height:17px;border-radius:4px;
+  background:linear-gradient(160deg,#ffd84a,#ffc107);
+  display:flex;align-items:center;justify-content:center;font-size:10px;line-height:1;
+}
+.oc-status{font-size:12px;color:#999;}
+.oc-status.warn{color:#ff8a00;}
+.oc-goods{display:flex;gap:10px;align-items:center;}
+.oc-thumb{
+  width:54px;height:54px;border-radius:9px;background:#f6f6f6;
+  display:flex;align-items:center;justify-content:center;font-size:27px;flex:0 0 auto;
+}
+.oc-info{flex:1;min-width:0;}
+.oc-name{font-size:13.5px;color:#1c1c1e;line-height:1.35;}
+.oc-price{font-size:11.5px;color:#9a9a9a;margin-top:5px;}
+.oc-date{font-size:11px;color:#b0b0b0;margin-top:10px;}
+.oc-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:10px;padding-top:10px;border-top:.5px solid #f2f2f2;
+}
+.oc-more{font-size:12px;color:#8a8a8a;}
+.oc-btns{display:flex;gap:8px;}
+.obtn{
+  font-size:12px;padding:5px 13px;border-radius:14px;
+  border:.5px solid #dcdcdc;color:#4a4a4a;background:#fff;transition:transform .12s;
+}
+.obtn:active{transform:scale(.95);}
+.obtn.orange{
+  background:linear-gradient(180deg,#ffa53c,#ff8a00);
+  border:none;color:#fff;font-weight:600;
+  box-shadow:0 2px 6px rgba(255,138,0,.28);
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+<div class="screen">
+
+  <!-- ==================== 锁屏 ==================== -->
+  <section class="page lock active" id="page-lock">
+    <div class="lock-bg"></div>
+    <div class="lock-blob"></div>
+    <div class="island"></div>
+
+    <header class="status-bar">
+      <div class="sb-left">
+        <span class="sb-carrier">中国联通</span>
+        <span class="sb-5g">5G</span>
+      </div>
+      <div class="sb-right">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
+          <rect x="0" y="7.5" width="3" height="3.5" rx="1"/>
+          <rect x="4.6" y="5.4" width="3" height="5.6" rx="1"/>
+          <rect x="9.2" y="3" width="3" height="8" rx="1"/>
+          <rect x="13.8" y="0" width="3" height="11" rx="1"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+          <path d="M8 3.3c2.1 0 4 .8 5.4 2.2l1.4-1.4A9.6 9.6 0 0 0 8 1.4 9.6 9.6 0 0 0 1.2 4.1l1.4 1.4A7.6 7.6 0 0 1 8 3.3z"/>
+          <path d="M8 6.6c1.1 0 2.1.4 2.9 1.2l1.4-1.4A6.2 6.2 0 0 0 8 4.7c-1.6 0-3.1.6-4.3 1.7l1.4 1.4c.8-.8 1.8-1.2 2.9-1.2z"/>
+          <circle cx="8" cy="10.2" r="1.5"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="currentColor" stroke-opacity=".38"/>
+          <rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/>
+          <path d="M23.2 4.1v3.8c.9-.3 1.4-.95 1.4-1.9s-.5-1.6-1.4-1.9z" fill="currentColor" fill-opacity=".45"/>
+        </svg>
+      </div>
+    </header>
+
+    <div class="lock-main">
+      <div class="lock-date js-date">10月23日 星期四</div>
+      <div class="lock-time js-time">13:54</div>
+
+      <div class="lock-widgets">
+        <div class="pill">
+          <svg width="18" height="11" viewBox="0 0 25 12">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="#3a3a3c" stroke-opacity=".35"/>
+            <rect x="2" y="2" width="10" height="8" rx="2" fill="#34c759"/>
+            <path d="M23.2 4.1v3.8c.9-.3 1.4-.95 1.4-1.9s-.5-1.6-1.4-1.9z" fill="#3a3a3c" fill-opacity=".45"/>
+          </svg>
+          <span>49%</span>
+        </div>
+
+        <div class="pill">
+          <svg width="19" height="19" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="7.6" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="2.6"/>
+            <circle cx="10" cy="10" r="7.6" fill="none" stroke="#34c759" stroke-width="2.6"
+                    stroke-dasharray="47.75" stroke-dashoffset="14.3" stroke-linecap="round"
+                    transform="rotate(-90 10 10)"/>
+          </svg>
+          <span class="ring-txt">70%</span>
+        </div>
+
+        <div class="pill">
+          <svg width="19" height="19" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="7.6" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="2.6"/>
+            <circle cx="10" cy="10" r="7.6" fill="none" stroke="#0a84ff" stroke-width="2.6"
+                    stroke-dasharray="47.75" stroke-dashoffset="30" stroke-linecap="round"
+                    transform="rotate(-90 10 10)"/>
+          </svg>
+          <span class="ring-txt">37%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="podcast">
+      <div class="podcast-card">
+        <div class="pc-cover">🐬</div>
+        <div class="pc-body">
+          <div class="pc-title">魔蝎座的二十种暗示</div>
+          <div class="pc-sub">养育豚豚</div>
+          <div class="pc-progress"><div class="pc-fill"></div></div>
+          <div class="pc-times"><span>12:34</span><span>-28:16</span></div>
+        </div>
+      </div>
+      <div class="pc-controls">
+        <button class="pcb" title="收藏">☆</button>
+        <button class="pcb">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5.5a7 7 0 1 1-6.6 4.7"/>
+            <path d="M4 3.6v5.2h5.2"/>
+          </svg>
+        </button>
+        <button class="pcb big">❚❚</button>
+        <button class="pcb">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5.5a7 7 0 1 0 6.6 4.7"/>
+            <path d="M20 3.6v5.2h-5.2"/>
+          </svg>
+        </button>
+        <button class="pcb">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linejoin="round">
+            <rect x="3" y="15" width="18" height="6" rx="2"/>
+            <path d="M12 3.5 17 10H7z" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="lock-bottom">
+      <button class="round-btn">🔦</button>
+      <button class="round-btn">📷</button>
+    </div>
+
+    <div class="swipe-hint">上滑解锁</div>
+    <div class="home-indicator"></div>
+  </section>
+
+
+  <!-- ==================== 密码锁屏 ==================== -->
+  <section class="page pass" id="page-pass">
+    <div class="pass-bg"></div>
+    <div class="island"></div>
+
+    <header class="status-bar light">
+      <div class="sb-left">
+        <span class="sb-carrier">中国联通</span>
+        <span class="sb-5g">5G</span>
+      </div>
+      <div class="sb-right">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
+          <rect x="0" y="7.5" width="3" height="3.5" rx="1"/>
+          <rect x="4.6" y="5.4" width="3" height="5.6" rx="1"/>
+          <rect x="9.2" y="3" width="3" height="8" rx="1"/>
+          <rect x="13.8" y="0" width="3" height="11" rx="1"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+          <path d="M8 3.3c2.1 0 4 .8 5.4 2.2l1.4-1.4A9.6 9.6 0 0 0 8 1.4 9.6 9.6 0 0 0 1.2 4.1l1.4 1.4A7.6 7.6 0 0 1 8 3.3z"/>
+          <path d="M8 6.6c1.1 0 2.1.4 2.9 1.2l1.4-1.4A6.2 6.2 0 0 0 8 4.7c-1.6 0-3.1.6-4.3 1.7l1.4 1.4c.8-.8 1.8-1.2 2.9-1.2z"/>
+          <circle cx="8" cy="10.2" r="1.5"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="currentColor" stroke-opacity=".45"/>
+          <rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/>
+          <path d="M23.2 4.1v3.8c.9-.3 1.4-.95 1.4-1.9s-.5-1.6-1.4-1.9z" fill="currentColor" fill-opacity=".5"/>
+        </svg>
+      </div>
+    </header>
+
+    <div class="pass-time js-time">13:54</div>
+    <div class="pass-hint">向上轻扫使用面容ID或输入密码</div>
+
+    <div class="pass-dots" id="passDots">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+
+    <div class="keypad" id="keypad">
+      <button class="key" data-k="1"><span class="n">1</span></button>
+      <button class="key" data-k="2"><span class="n">2</span><span class="a">ABC</span></button>
+      <button class="key" data-k="3"><span class="n">3</span><span class="a">DEF</span></button>
+      <button class="key" data-k="4"><span class="n">4</span><span class="a">GHI</span></button>
+      <button class="key" data-k="5"><span class="n">5</span><span class="a">JKL</span></button>
+      <button class="key" data-k="6"><span class="n">6</span><span class="a">MNO</span></button>
+      <button class="key" data-k="7"><span class="n">7</span><span class="a">PQRS</span></button>
+      <button class="key" data-k="8"><span class="n">8</span><span class="a">TUV</span></button>
+      <button class="key" data-k="9"><span class="n">9</span><span class="a">WXYZ</span></button>
+      <button class="key blank"></button>
+      <button class="key" data-k="0"><span class="n">0</span></button>
+      <button class="key del" data-k="del">⌫</button>
+    </div>
+
+    <div class="pass-foot">
+      <button>紧急情况</button>
+      <button>取消</button>
+    </div>
+    <div class="home-indicator light"></div>
+  </section>
+
+
+  <!-- ==================== 主屏幕 ==================== -->
+  <section class="page home" id="page-home">
+    <div class="home-bg"></div>
+    <div class="island"></div>
+
+    <header class="status-bar">
+      <div class="sb-left"><span class="js-time sb-carrier">13:54</span></div>
+      <div class="sb-right">
+        <span class="sb-5g">5G</span>
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
+          <rect x="0" y="7.5" width="3" height="3.5" rx="1"/>
+          <rect x="4.6" y="5.4" width="3" height="5.6" rx="1"/>
+          <rect x="9.2" y="3" width="3" height="8" rx="1"/>
+          <rect x="13.8" y="0" width="3" height="11" rx="1"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+          <path d="M8 3.3c2.1 0 4 .8 5.4 2.2l1.4-1.4A9.6 9.6 0 0 0 8 1.4 9.6 9.6 0 0 0 1.2 4.1l1.4 1.4A7.6 7.6 0 0 1 8 3.3z"/>
+          <path d="M8 6.6c1.1 0 2.1.4 2.9 1.2l1.4-1.4A6.2 6.2 0 0 0 8 4.7c-1.6 0-3.1.6-4.3 1.7l1.4 1.4c.8-.8 1.8-1.2 2.9-1.2z"/>
+          <circle cx="8" cy="10.2" r="1.5"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="currentColor" stroke-opacity=".38"/>
+          <rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor"/>
+          <path d="M23.2 4.1v3.8c.9-.3 1.4-.95 1.4-1.9s-.5-1.6-1.4-1.9z" fill="currentColor" fill-opacity=".45"/>
+        </svg>
+      </div>
+    </header>
+
+    <div class="home-grid">
+
+      <!-- 天气 -->
+      <div class="hg-row">
+        <div class="weather-w">
+          <div class="ww-top">
+            <div>
+              <div class="ww-city">北京</div>
+              <div class="ww-temp">21°</div>
+              <div class="ww-desc">多云转晴</div>
+            </div>
+            <div style="font-size:34px;line-height:1;">⛅️</div>
+          </div>
+          <div class="ww-days">
+            <div class="ww-day"><span>今天</span><span class="ico">⛅️</span><span class="d">21°</span></div>
+            <div class="ww-day"><span>周四</span><span class="ico">🌤</span><span class="d">19°</span></div>
+            <div class="ww-day"><span>周五</span><span class="ico">🌧</span><span class="d">17°</span></div>
+            <div class="ww-day"><span>周六</span><span class="ico">☀️</span><span class="d">23°</span></div>
+            <div class="ww-day"><span>周日</span><span class="ico">⛅️</span><span class="d">20°</span></div>
+          </div>
+          <div class="ww-note">Cooler tomorrow, with a high of 19°</div>
+        </div>
+      </div>
+
+      <!-- 日历 + 图标 -->
+      <div class="hg-row">
+        <div class="cal-w">
+          <div class="cw-top"><span>星期四</span><span class="m js-month">10月</span></div>
+          <div class="cw-day js-today">23</div>
+          <div class="cw-week">今天</div>
+          <div class="cw-grid" id="calBig"></div>
+        </div>
+
+        <div class="hg-col">
+          <div class="icon-row">
+            <div class="app"><div class="icon notes"></div><span class="lbl">备忘录</span></div>
+            <div class="app"><div class="icon settings">⚙</div><span class="lbl">设置</span></div>
+          </div>
+          <div class="icon-row">
+            <div class="app"><div class="icon calculator"></div><span class="lbl">计算器</span></div>
+            <div class="app"><div class="icon photos"></div><span class="lbl">照片</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第二排图标 -->
+      <div class="hg-row">
+        <div class="app"><div class="icon appstore"></div><span class="lbl">App Store</span></div>
+        <div class="app"><div class="icon safari"></div><span class="lbl">Safari</span></div>
+        <div class="app"><div class="icon clock"></div><span class="lbl">时钟</span></div>
+        <div class="app"><div class="icon weather"></div><span class="lbl">天气</span></div>
+      </div>
+
+      <!-- 迷你日历 + 搜索 -->
+      <div class="hg-row">
+        <div class="minical">
+          <div class="mc-head"><span class="t js-month">10月</span><span class="y js-year">2025</span></div>
+          <div class="mc-grid" id="calMini"></div>
+        </div>
+        <div class="search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/>
+          </svg>
+          Search
+        </div>
+      </div>
+
+      <!-- Dock -->
+      <div class="dock">
+        <div class="app" data-go="msg"><div class="icon sms"></div></div>
+        <div class="app" data-go="wechat"><div class="icon wechat"></div></div>
+        <div class="app" data-go="douban"><div class="icon douban"></div></div>
+        <div class="app" data-go="meituan"><div class="icon meituan"></div></div>
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </section>
+
+
+  <!-- ==================== iMessage ==================== -->
+  <section class="page app-msg" id="page-msg">
+    <div class="nebula-bg">
+      <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#1c1e23"/>
+            <stop offset=".32" stop-color="#272b33"/>
+            <stop offset=".62" stop-color="#7d97b0"/>
+            <stop offset="1" stop-color="#d3e4f2"/>
+          </linearGradient>
+          <filter id="f-soft"><feGaussianBlur stdDeviation="24"/></filter>
+          <filter id="f-soft2"><feGaussianBlur stdDeviation="5"/></filter>
+          <filter id="f-glow"><feGaussianBlur stdDeviation="1.6"/></filter>
+          <path id="star4" d="M0,-9 C1.2,-2.6 2.6,-1.2 9,0 C2.6,1.2 1.2,2.6 0,9 C-1.2,2.6 -2.6,1.2 -9,0 C-2.6,-1.2 -1.2,-2.6 0,-9Z"/>
+        </defs>
+
+        <rect width="390" height="844" fill="url(#sky)"/>
+
+        <ellipse cx="330" cy="720" rx="200" ry="140" fill="#e2eefa" opacity=".62" filter="url(#f-soft)"/>
+        <ellipse cx="90" cy="150" rx="170" ry="110" fill="#8fa6bd" opacity=".22" filter="url(#f-soft)"/>
+        <ellipse cx="250" cy="420" rx="180" ry="130" fill="#b7cde1" opacity=".30" filter="url(#f-soft)"/>
+
+        <path d="M-50,680 C60,610 140,650 215,545 C285,445 335,385 430,300"
+              stroke="#ffffff" stroke-width="34" fill="none" opacity=".45" filter="url(#f-soft)"/>
+        <path d="M-50,680 C60,610 140,650 215,545 C285,445 335,385 430,300"
+              stroke="#ffffff" stroke-width="8" fill="none" opacity=".78" filter="url(#f-soft2)"/>
+
+        <use href="#star4" x="52" y="120" fill="#ffd6e8" opacity=".95" filter="url(#f-glow)"/>
+        <use href="#star4" x="120" y="210" fill="#ffffff" opacity=".8" transform="translate(120,210) scale(.6) translate(-120,-210)"/>
+        <use href="#star4" x="300" y="150" fill="#cfe4ff" opacity=".9" filter="url(#f-glow)"/>
+        <use href="#star4" x="70" y="330" fill="#ffe9c9" opacity=".75" transform="translate(70,330) scale(.55) translate(-70,-330)"/>
+        <use href="#star4" x="340" y="330" fill="#ffffff" opacity=".85"/>
+        <use href="#star4" x="180" y="90" fill="#ffd6e8" opacity=".7" transform="translate(180,90) scale(.45) translate(-180,-90)"/>
+        <use href="#star4" x="255" y="255" fill="#ffffff" opacity=".6" transform="translate(255,255) scale(.4) translate(-255,-255)"/>
+        <use href="#star4" x="40" y="520" fill="#cfe4ff" opacity=".8" transform="translate(40,520) scale(.6) translate(-40,-520)"/>
+        <use href="#star4" x="330" y="600" fill="#ffffff" opacity=".55" transform="translate(330,600) scale(.5) translate(-330,-600)"/>
+        <use href="#star4" x="150" y="430" fill="#ffd6e8" opacity=".6" transform="translate(150,430) scale(.45) translate(-150,-430)"/>
+
+        <circle cx="95" cy="180" r="1.6" fill="#fff" opacity=".8"/>
+        <circle cx="210" cy="150" r="1.3" fill="#fff" opacity=".7"/>
+        <circle cx="280" cy="200" r="1.8" fill="#fff" opacity=".75"/>
+        <circle cx="60" cy="260" r="1.2" fill="#fff" opacity=".6"/>
+        <circle cx="320" cy="420" r="1.5" fill="#fff" opacity=".6"/>
+        <circle cx="130" cy="360" r="1.4" fill="#fff" opacity=".55"/>
+        <circle cx="230" cy="330" r="1.2" fill="#fff" opacity=".5"/>
+      </svg>
+    </div>
+
+    <div class="msg-inner">
+      <header class="status-bar light">
+        <div class="sb-left"><span class="js-time">13:54</span></div>
+        <div class="sb-right">
+          <span style="font-size:13px;">❤️</span>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M8 3.3c2.1 0 4 .8 5.4 2.2l1.4-1.4A9.6 9.6 0 0 0 8 1.4 9.6 9.6 0 0 0 1.2 4.1l1.4 1.4A7.6 7.6 0 0 1 8 3.3z"/>
+            <path d="M8 6.6c1.1 0 2.1.4 2.9 1.2l1.4-1.4A6.2 6.2 0 0 0 8 4.7c-1.6 0-3.1.6-4.3 1.7l1.4 1.4c.8-.8 1.8-1.2 2.9-1.2z"/>
+            <circle cx="8" cy="10.2" r="1.5"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="currentColor" stroke-opacity=".5"/>
+            <rect x="2" y="2" width="12" height="8" rx="2" fill="currentColor"/>
+            <path d="M23.2 4.1v3.8c.9-.3 1.4-.95 1.4-1.9s-.5-1.6-1.4-1.9z" fill="currentColor" fill-opacity=".5"/>
+          </svg>
+          <span style="font-size:12px;font-weight:600;">69%</span>
+        </div>
+      </header>
+
+      <div class="msg-nav">
+        <button class="msg-back" data-back>‹</button>
+        <div class="msg-who">
+          <div class="msg-avatar"></div>
+          <div class="msg-name">橹橹</div>
+        </div>
+        <button class="msg-video">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+            <rect x="2.5" y="6" width="12" height="12" rx="3"/>
+            <path d="M14.5 11 21 7.5v9L14.5 13z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="msg-list">
+        <div class="msg-date">2024年3月2日</div>
+        <div class="bubble me">猜猜我是谁</div>
+        <div class="bubble me">你今天又打碎我一个屏幕 给我报销</div>
+        <div class="bubble me">又要半个月见不到你了 好想你啊橹橹 让哥哥亲亲</div>
+
+        <div class="msg-date">2024年3月18日</div>
+        <div class="bubble me">今天我们橹橹表演特别特别厉害 进步特别特别大完美小孩</div>
+        <div class="bubble me">我往你门口放了只小狗玩偶 记得签收哦</div>
+        <div class="bubble me">晚安橹橹</div>
+
+        <div class="msg-date">2024年3月19日</div>
+        <div class="bubble me">我找到你自拍背景中 偷偷放在角落的小狗玩偶了！</div>
+        <div class="bubble me">我收到你的回复啦</div>
+
+        <div class="msg-date">2024年4月17日</div>
+        <div class="bubble me">最近太忙了橹橹哥哥下个月一定会来看你的</div>
+        <div class="bubble them">为什么月度公演前一晚才告诉我</div>
+        <div class="bubble them">reflection27</div>
+        <div class="bubble them">我拍点新造型拍立得寄给你(o･･o)/</div>
+        <div class="bubble me">！！！！！橹橹！！！！！</div>
+      </div>
+
+      <div class="msg-input">
+        <button class="mi-btn">+</button>
+        <div class="mi-field">iMessage<span class="caret"></span></div>
+        <button class="mi-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <rect x="9" y="2.5" width="6" height="12" rx="3"/>
+            <path d="M5 11a7 7 0 0 0 14 0"/>
+            <path d="M12 18.5V22"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="home-indicator light"></div>
+  </section>
+
+
+  <!-- ==================== 微信 ==================== -->
+  <section class="page app-wechat" id="page-wechat">
+    <div class="wx-head">
+      <header class="status-bar">
+        <div class="sb-left"><span class="js-time sb-carrier">13:54</span></div>
+        <div class="sb-right">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5 6 9H3v6h3l5 4z"/>
+            <path d="M16 9a4 4 0 0 1 0 6"/>
+            <path d="M19 5.5 21 4M19 18.5 21 20"/>
+          </svg>
+          <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
+            <rect x="0" y="7.5" width="3" height="3.5" rx="1"/>
+            <rect x="4.6" y="5.4" width="3" height="5.6" rx="1"/>
+            <rect x="9.2" y="3" width="3" height="8" rx="1"/>
+            <rect x="13.8" y="0" width="3" height="11" rx="1"/>
+          </svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M8 3.3c2.1 0 4 .8 5.4 2.2l1.4-1.4A9.6 9.6 0 0 0 8 1.4 9.6 9.6 0 0 0 1.2 4.1l1.4 1.4A7.6 7.6 0 0 1 8 3.3z"/>
+            <path d="M8 6.6c1.1 0 2.1.4 2.9 1.2l1.4-1.4A6.2 6.2 0 0 0 8 4.7c-1.6 0-3.1.6-4.3 1.7l1.4 1.4c.8-.8 1.8-1.2 2.9-1.2z"/>
+            <circle cx="8" cy="10.2" r="1.5"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="currentColor" stroke-opacity=".38"/>
+            <rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"/>
+            <path d="M23.2 4.1v3.8c.9-.3 1.4-.95 1.4-1.9s-.5-1.6-1.4-1.9z" fill="currentColor" fill-opacity=".45"/>
+          </svg>
+        </div>
+      </header>
+
+      <div class="wx-nav">
+        <button class="wx-back" data-back>‹</button>
+        <div class="wx-title">
+          <div class="av">🐹</div>
+          <div class="tx">宝宝豚豚</div>
+        </div>
+        <button class="wx-more">•••</button>
+      </div>
+    </div>
+
+    <div class="wx-list">
+      <div class="wx-time">2025年6月8日</div>
+
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">橹橹 我下飞机啦！</div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">在家里洗香香等我</div>
+      </div>
+      <div class="wx-row them">
+        <div class="wx-av capy">🐹</div>
+        <div class="wx-bubble">哥哥 这个王冷静想你想得要不行了 ꒦ິ^꒦ິ、</div>
+      </div>
+      <div class="wx-row them">
+        <div class="wx-av capy">🐹</div>
+        <div class="wx-bubble">我在开会，筹铜石恋爱照片被前女友爆了，运营警告我们中(•̩̩̩̩＿•̩̩̩̩)</div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">他有病啊他 能学学我们不</div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">我打车来你们楼下等你一起回家吧</div>
+      </div>
+
+      <div class="wx-time">2025年7月2日</div>
+
+      <div class="wx-row them">
+        <div class="wx-av capy">🐹</div>
+        <div class="wx-bubble">哥哥 我昨晚不是故意尿你里面的</div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">呵呵哒</div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">王冷静我不会再相信你了</div>
+      </div>
+      <div class="wx-row them">
+        <div class="wx-av capy">🐹</div>
+        <div class="wx-bubble">穆之丞 我真的错了૮₍ɵ̷﹏ɵ̷̥̥᷅₎ა不要不理这个很可怜的王冷静呀</div>
+      </div>
+      <div class="wx-row them">
+        <div class="wx-av capy">🐹</div>
+        <div class="wx-bubble">王冷静一个人在家里抱着小狗 特别可怜的在一起等待主人穆之丞回家</div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble"></div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">晚点说</div>
+      </div>
+
+      <div class="wx-time">2025年10月11日</div>
+
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">你继续疯狂给我饭撒笑死</div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">筹铜石们又要阴阳怪气橹橹也是学会媚粉了</div>
+      </div>
+      <div class="wx-row them">
+        <div class="wx-av capy">🐹</div>
+        <div class="wx-bubble">(´,,•ω•,,`)哥哥……</div>
+      </div>
+      <div class="wx-row them">
+        <div class="wx-av capy">🐹</div>
+        <div class="wx-bubble">他们说要一起去吃饭 我说肚子痛直接走了 你坐车里等我～(,,&gt;᎑&lt;,,)</div>
+      </div>
+      <div class="wx-row me">
+        <div class="wx-av rabbit">🐰</div>
+        <div class="wx-bubble">记得戴好口罩帽子</div>
+      </div>
+    </div>
+
+    <div class="wx-input">
+      <button class="wx-ib">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 3v10"/><path d="M8.5 9.5 12 13l3.5-3.5"/>
+          <path d="M5 15v2.5a2.5 2.5 0 0 0 2.5 2.5h9a2.5 2.5 0 0 0 2.5-2.5V15"/>
+        </svg>
+      </button>
+      <div class="wx-field">可按住 转文字</div>
+      <button class="wx-emo">☺</button>
+      <button class="wx-plus">＋</button>
+    </div>
+    <div class="home-indicator"></div>
+  </section>
+
+
+  <!-- ==================== 豆瓣 ==================== -->
+  <section class="page app-douban" id="page-douban">
+    <div class="db-head">
+      <header class="status-bar light">
+        <div class="sb-left"><span class="js-time sb-carrier">13:54</span></div>
+        <div class="sb-right">
+          <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
+            <rect x="0" y="7.5" width="3" height="3.5" rx="1"/>
+            <rect x="4.6" y="5.4" width="3" height="5.6" rx="1"/>
+            <rect x="9.2" y="3" width="3" height="8" rx="1"/>
+            <rect x="13.8" y="0" width="3" height="11" rx="1"/>
+          </svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M8 3.3c2.1 0 4 .8 5.4 2.2l1.4-1.4A9.6 9.6 0 0 0 8 1.4 9.6 9.6 0 0 0 1.2 4.1l1.4 1.4A7.6 7.6 0 0 1 8 3.3z"/>
+            <path d="M8 6.6c1.1 0 2.1.4 2.9 1.2l1.4-1.4A6.2 6.2 0 0 0 8 4.7c-1.6 0-3.1.6-4.3 1.7l1.4 1.4c.8-.8 1.8-1.2 2.9-1.2z"/>
+            <circle cx="8" cy="10.2" r="1.5"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="currentColor" stroke-opacity=".55"/>
+            <rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/>
+            <path d="M23.2 4.1v3.8c.9-.3 1.4-.95 1.4-1.9s-.5-1.6-1.4-1.9z" fill="currentColor" fill-opacity=".55"/>
+          </svg>
+        </div>
+      </header>
+
+      <div class="db-nav">
+        <button class="db-back" data-back>‹</button>
+        <div class="db-nav-title">
+          <span class="g">被给子气哭的那个雨夜</span>
+          <span class="s">105人加入</span>
+        </div>
+        <button class="db-nav-more">•••</button>
+      </div>
+    </div>
+
+    <div class="db-scroll">
+      <div class="db-post">
+        <div class="db-user">
+          <div class="db-uav">🐲</div>
+          <div class="db-uinfo">
+            <div class="db-uname">至善至美小奶龙</div>
+            <div class="db-umeta">2025-10-11 21:11 · 上海</div>
+          </div>
+        </div>
+        <div class="db-content">
+          李涛 你们<span class="tag">碌神</span>和🧹这是演都懒得演了？
+        </div>
+      </div>
+
+      <div class="db-actions">
+        <span>💬 回复</span>
+        <span>👍 赞</span>
+        <span>↗ 转发</span>
+        <span>⭐ 收藏</span>
+        <span>🎁 礼物</span>
+      </div>
+
+      <div class="db-chead">
+        <span class="t">全部回复</span>
+        <span class="lz">楼主</span>
+      </div>
+
+      <div class="db-comments">
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#ffd0d0,#f0a0a0);">😾</div>
+            <div class="db-c-info">
+              <div class="db-c-name">被基佬吓晕<span class="dot"></span></div>
+              <div class="db-c-meta">1楼 · 12分钟前 · 北京</div>
+            </div>
+          </div>
+          <div class="db-c-body">啥呀 这两妖人又干啥了 我今天还没刷组里</div>
+          <div class="db-c-foot"><span>👍 12</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#c8f0d8,#8fd8ad);">🐲</div>
+            <div class="db-c-info">
+              <div class="db-c-name">奶龙代言人<span class="dot"></span></div>
+              <div class="db-c-meta">2楼 · 11分钟前 · 上海</div>
+            </div>
+          </div>
+          <div class="db-c-body">#10s 有对视 小杰快步跑向车里 车里人是哥哥吗！#</div>
+          <div class="db-c-foot"><span>👍 34</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#d6d0ff,#a79af0);">🍀</div>
+            <div class="db-c-info">
+              <div class="db-c-name">小踩哥哥<span class="dot"></span></div>
+              <div class="db-c-meta">3楼 · 10分钟前 · 广州</div>
+            </div>
+          </div>
+          <div class="db-c-body">是哥哥呀。。。情哥哥。。。。呵呵。。。。。王冷静还钱。。。。</div>
+          <div class="db-c-foot"><span>👍 88</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#ffe0b8,#f5b96a);">🍑</div>
+            <div class="db-c-info">
+              <div class="db-c-name">不当给梦女从我做起<span class="dot"></span></div>
+              <div class="db-c-meta">4楼 · 9分钟前 · 杭州</div>
+            </div>
+          </div>
+          <div class="db-c-body">这代拍这样取 故意气毛毛们上次骂她拍到了🦌埋在🧹怀里哭吧 五位数买断了都还不知足啊这关中</div>
+          <div class="db-c-foot"><span>👍 56</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#c9e8ff,#84bde8);">🎈</div>
+            <div class="db-c-info">
+              <div class="db-c-name">族丝乐子人<span class="dot"></span></div>
+              <div class="db-c-meta">5楼 · 8分钟前 · 成都</div>
+            </div>
+          </div>
+          <div class="db-c-body">不过小四四们不是要一起去聚餐吗 🦌就这样走了干啥</div>
+          <div class="db-c-foot"><span>👍 21</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#ffd6e8,#f0a3c4);">🌙</div>
+            <div class="db-c-info">
+              <div class="db-c-name">gogogo（我）<span class="dot"></span></div>
+              <div class="db-c-meta">6楼 · 7分钟前 · 深圳</div>
+            </div>
+          </div>
+          <div class="db-c-body">可能去和🧹一起吃烛光晚餐吧</div>
+          <div class="db-c-foot"><span>👍 47</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#ffd0d0,#f0a0a0);">😾</div>
+            <div class="db-c-info">
+              <div class="db-c-name">被基佬吓晕<span class="dot"></span></div>
+              <div class="db-c-meta">7楼 · 6分钟前 · 北京</div>
+            </div>
+          </div>
+          <div class="db-c-body">吃完又做双人运动 然后呢又顶着一脖子红印上班 然后呢毛毛wq怎么给孩子穿那么劣质的衣服 过敏了！</div>
+          <div class="db-c-foot"><span>👍 132</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#d6d0ff,#a79af0);">🍀</div>
+            <div class="db-c-info">
+              <div class="db-c-name">小踩哥哥<span class="dot"></span></div>
+              <div class="db-c-meta">8楼 · 5分钟前 · 广州</div>
+            </div>
+          </div>
+          <div class="db-c-body">气死爸爸了。。。坤续摆摊。。。。低价盘出周边。。。不嗑某人和某人的优先。。。。</div>
+          <div class="db-quote">回复 @被基佬吓晕：吃完又做双人运动 然后呢又顶着一脖子红印上班</div>
+          <div class="db-c-foot"><span>👍 76</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#c8f0d8,#8fd8ad);">🐲</div>
+            <div class="db-c-info">
+              <div class="db-c-name">奶龙代言人<span class="dot"></span></div>
+              <div class="db-c-meta">9楼 · 4分钟前 · 上海</div>
+            </div>
+          </div>
+          <div class="db-c-body">哥哥 窝组已经从破防组变成西皮组了 你这周边更卖不掉了！</div>
+          <div class="db-c-foot"><span>👍 41</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#d6d0ff,#a79af0);">🍀</div>
+            <div class="db-c-info">
+              <div class="db-c-name">小踩哥哥<span class="dot"></span></div>
+              <div class="db-c-meta">10楼 · 3分钟前 · 广州</div>
+            </div>
+          </div>
+          <div class="db-c-body">好吧。。。那嗑的优先。。。无所谓了。。。。让这对淫夫离开我的吐泡泡生活吧。。。</div>
+          <div class="db-c-foot"><span>👍 63</span></div>
+        </div>
+
+        <div class="db-c">
+          <div class="db-c-head">
+            <div class="db-c-av" style="background:linear-gradient(150deg,#ffd6e8,#f0a3c4);">🌙</div>
+            <div class="db-c-info">
+              <div class="db-c-name">gogogo（我）<span class="dot"></span></div>
+              <div class="db-c-meta">11楼 · 刚刚 · 深圳</div>
+            </div>
+          </div>
+          <div class="db-c-body">奶龙你看下私信 合适的话我可以收</div>
+          <div class="db-c-foot"><span>👍 9</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="db-bar">
+      <div class="db-field">写回复</div>
+      <div class="db-icons">
+        <span>👍</span><span>💬</span><span>⭐</span><span>🖼</span>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+  </section>
+
+
+  <!-- ==================== 美团 订单列表 ==================== -->
+  <section class="page app-meituan" id="page-meituan">
+
+    <div class="mt-head">
+      <header class="status-bar">
+        <div class="sb-left"><span class="js-time" style="font-size:15px;font-weight:600;">13:54</span></div>
+        <div class="sb-right">
+          <span class="mt-mini-apps">💬📕🎵🛒</span>
+          <svg width="11" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/>
+            <circle cx="12" cy="10" r="2.4"/>
+          </svg>
+          <span class="mt-hd">HD</span>
+          <span class="sb-5g">5G</span>
+          <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M8 3.3c2.1 0 4 .8 5.4 2.2l1.4-1.4A9.6 9.6 0 0 0 8 1.4 9.6 9.6 0 0 0 1.2 4.1l1.4 1.4A7.6 7.6 0 0 1 8 3.3z"/>
+            <path d="M8 6.6c1.1 0 2.1.4 2.9 1.2l1.4-1.4A6.2 6.2 0 0 0 8 4.7c-1.6 0-3.1.6-4.3 1.7l1.4 1.4c.8-.8 1.8-1.2 2.9-1.2z"/>
+            <circle cx="8" cy="10.2" r="1.5"/>
+          </svg>
+          <span style="font-size:11px;font-weight:600;">79%</span>
+          <svg width="22" height="11" viewBox="0 0 25 12">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="currentColor" stroke-opacity=".38"/>
+            <rect x="2" y="2" width="15" height="8" rx="2" fill="#34c759"/>
+            <path d="M23.2 4.1v3.8c.9-.3 1.4-.95 1.4-1.9s-.5-1.6-1.4-1.9z" fill="currentColor" fill-opacity=".45"/>
+          </svg>
+        </div>
+      </header>
+
+      <div class="mt-search">
+        <button class="mt-back" data-back>‹</button>
+        <div class="mt-field">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/>
+          </svg>
+          搜索我的订单
+        </div>
+        <div class="mt-tools">
+          <span>⛭</span><span>♡</span><span>🧾</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-tabs">
+      <div class="mt-tab on">全部</div>
+      <div class="mt-tab">待付款</div>
+      <div class="mt-tab">待收货/待使用</div>
+      <div class="mt-tab">评价</div>
+      <div class="mt-tab">退款/售后</div>
+    </div>
+
+    <div class="mt-scroll">
+
+      <!-- 订单 1 -->
+      <div class="ocard">
+        <div class="oc-head">
+          <span class="oc-shop"><span class="oc-shop-ico">⚡</span>胖子保护协会</span>
+          <span class="oc-status warn">待评价</span>
+        </div>
+        <div class="oc-goods">
+          <div class="oc-thumb">🍲</div>
+          <div class="oc-info">
+            <div class="oc-name">麻辣烫双人份</div>
+            <div class="oc-price">¥ 46.80 · 共 1 件</div>
+          </div>
+        </div>
+        <div class="oc-date">下单: 2025-10-10 18:32</div>
+        <div class="oc-foot">
+          <span class="oc-more">更多</span>
+          <div class="oc-btns">
+            <button class="obtn">领神券</button>
+            <button class="obtn orange">再来一单</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 订单 2 -->
+      <div class="ocard">
+        <div class="oc-head">
+          <span class="oc-shop"><span class="oc-shop-ico">⚡</span>鲁姆大床房</span>
+          <span class="oc-status">已取消</span>
+        </div>
+        <div class="oc-goods">
+          <div class="oc-thumb">🛏️</div>
+          <div class="oc-info">
+            <div class="oc-name">项圈、杜蕾斯</div>
+            <div class="oc-price">¥ 128.00 · 共 2 件</div>
+          </div>
+        </div>
+        <div class="oc-date">下单: 2025-10-10 22:07</div>
+        <div class="oc-foot">
+          <span class="oc-more">更多</span>
+          <div class="oc-btns">
+            <button class="obtn">领神券</button>
+            <button class="obtn orange">再来一单</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 订单 3 -->
+      <div class="ocard">
+        <div class="oc-head">
+          <span class="oc-shop"><span class="oc-shop-ico">⚡</span>豚馒点心房</span>
+          <span class="oc-status">订单完成</span>
+        </div>
+        <div class="oc-goods">
+          <div class="oc-thumb">🍰</div>
+          <div class="oc-info">
+            <div class="oc-name">巧克力蛋糕</div>
+            <div class="oc-price">¥ 68.00 · 共 1 件</div>
+          </div>
+        </div>
+        <div class="oc-date">下单: 2025-10-08 14:15</div>
+        <div class="oc-foot">
+          <span class="oc-more">更多</span>
+          <div class="oc-btns">
+            <button class="obtn">可领奖励</button>
+            <button class="obtn orange">再来一单</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 订单 4 -->
+      <div class="ocard">
+        <div class="oc-head">
+          <span class="oc-shop"><span class="oc-shop-ico">⚡</span>红白很好</span>
+          <span class="oc-status warn">待评价</span>
+        </div>
+        <div class="oc-goods">
+          <div class="oc-thumb">🩺</div>
+          <div class="oc-info">
+            <div class="oc-name">医生护士cos服一次性</div>
+            <div class="oc-price">¥ 89.90 · 共 1 件</div>
+          </div>
+        </div>
+        <div class="oc-date">下单: 2025-09-24 20:40</div>
+        <div class="oc-foot">
+          <span class="oc-more">更多</span>
+          <div class="oc-btns">
+            <button class="obtn">领神券</button>
+            <button class="obtn orange">再来一单</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="home-indicator"></div>
+  </section>
+
+</div>
+</div>
+
+<script>
+(function () {
+  /* ---------------- 时间 ---------------- */
+  const WEEK = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    const now = new Date();
+    const hhmm = pad(now.getHours()) + ':' + pad(now.getMinutes());
+
+    document.querySelectorAll('.js-time').forEach(el => { el.textContent = hhmm; });
+
+    document.querySelectorAll('.js-date').forEach(el => {
+      el.textContent = (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + WEEK[now.getDay()];
+    });
+
+    document.querySelectorAll('.js-month').forEach(el => {
+      el.textContent = (now.getMonth() + 1) + '月';
+    });
+
+    document.querySelectorAll('.js-year').forEach(el => {
+      el.textContent = now.getFullYear();
+    });
+
+    document.querySelectorAll('.js-today').forEach(el => {
+      el.textContent = now.getDate();
+    });
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---------------- 日历生成 ---------------- */
+  function buildCalendar(el, withHeader) {
+    if (!el) return;
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth(), today = now.getDate();
+    const firstDay = new Date(y, m, 1).getDay();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+    let html = '';
+    if (withHeader) {
+      ['日','一','二','三','四','五','六'].forEach(w => {
+        html += '<span class="h">' + w + '</span>';
+      });
+    }
+    for (let i = 0; i < firstDay; i++) html += '<span class="d empty">0</span>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      html += '<span class="d' + (d === today ? ' today' : '') + '">' + d + '</span>';
+    }
+    el.innerHTML = html;
+  }
+
+  buildCalendar(document.getElementById('calBig'), true);
+  buildCalendar(document.getElementById('calMini'), true);
+
+  /* ---------------- 页面切换 ---------------- */
+  const pages = {
+    lock:    document.getElementById('page-lock'),
+    pass:    document.getElementById('page-pass'),
+    home:    document.getElementById('page-home'),
+    msg:     document.getElementById('page-msg'),
+    wechat:  document.getElementById('page-wechat'),
+    douban:  document.getElementById('page-douban'),
+    meituan: document.getElementById('page-meituan')
+  };
+  let current = 'lock';
+
+  function go(name) {
+    if (!pages[name] || name === current) return;
+    pages[current].classList.remove('active');
+    pages[name].classList.add('active');
+    current = name;
+  }
+
+  /* ---------------- 锁屏上滑 ---------------- */
+  const lock = pages.lock;
+  let startY = null, startX = null;
+
+  lock.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    startY = e.clientY;
+    startX = e.clientX;
+  });
+  lock.addEventListener('pointerup', e => {
+    if (startY === null) return;
+    const dy = startY - e.clientY;
+    const dx = Math.abs(startX - e.clientX);
+    if (dy > 55 && dx < 90) go('pass');
+    else if (Math.abs(dy) < 6 && Math.abs(startX - e.clientX) < 6) go('pass');
+    startY = null;
+  });
+  lock.addEventListener('pointercancel', () => { startY = null; });
+
+  /* ---------------- 密码键盘 ---------------- */
+  const dotsWrap = document.getElementById('passDots');
+  const dots = Array.from(dotsWrap.querySelectorAll('.dot'));
+  const keypad = document.getElementById('keypad');
+  let pin = '';
+
+  function renderDots() {
+    dots.forEach((d, i) => d.classList.toggle('filled', i < pin.length));
+  }
+
+  function resetPin() {
+    pin = '';
+    renderDots();
+  }
+
+  keypad.addEventListener('click', e => {
+    const btn = e.target.closest('.key');
+    if (!btn || btn.classList.contains('blank')) return;
+    const k = btn.dataset.k;
+
+    if (k === 'del') {
+      pin = pin.slice(0, -1);
+      renderDots();
+      return;
+    }
+    if (pin.length >= 6) return;
+
+    pin += k;
+    renderDots();
+
+    if (pin.length === 4) {
+      if (pin === '0108') {
+        setTimeout(() => { go('home'); resetPin(); }, 240);
+      } else {
+        dotsWrap.classList.add('shake');
+        setTimeout(() => {
+          dotsWrap.classList.remove('shake');
+          resetPin();
+        }, 430);
+      }
+    }
+  });
+
+  /* ---------------- 图标跳转 / 返回 ---------------- */
+  document.querySelectorAll('[data-go]').forEach(el => {
+    el.addEventListener('click', () => go(el.dataset.go));
+  });
+  document.querySelectorAll('[data-back]').forEach(el => {
+    el.addEventListener('click', () => go('home'));
+  });
+
+})();
+</script>
+</body>
+</html>
